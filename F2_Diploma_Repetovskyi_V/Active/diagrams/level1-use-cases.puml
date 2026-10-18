@@ -1,0 +1,52 @@
+@startuml level1-use-cases
+!include rose-common.iuml
+left to right direction
+skinparam nodesep 10
+skinparam ranksep 38
+title Kohaku – діаграма варіантів використання (контекст системи)
+
+actor "Гравець" as player
+actor "Розробник рушія" as developer
+actor "GitHub Actions" as ci <<system>>
+actor "Автор вмісту" as author
+
+actor "ОС Windows" as windows <<system>>
+actor "Графічний адаптер" as gpu <<system>>
+
+rectangle "Kohaku" as system {
+  usecase "Налаштувати гру" as settings
+  usecase "Грати сеанс" as play
+  usecase "Переглянути\nзапис сеансу" as review
+  usecase "Запустити\nмодульні тести" as tests
+  usecase "Дизасемблювати ресурс" as disasm
+  usecase "Асемблювати ресурс" as asm
+  usecase "Упакувати архів" as pack
+  usecase "Підготувати текстури" as bake
+
+  usecase "Переглянути діалог" as dialogue
+  usecase "Призупинити гру" as pause
+  usecase "Записати сеанс" as record
+  usecase "Виявити першу\nрозбіжність стану" as diverge
+  usecase "Перевірити зворотне\nперетворення" as roundtrip
+}
+
+player --> settings
+player --> play
+player --> review
+developer --> review
+developer --> tests
+ci --> tests
+author --> disasm
+author --> asm
+author --> pack
+author --> bake
+
+play <.. dialogue : <<extend>>
+play <.. pause : <<extend>>
+play ..> record : <<include>>
+review ..> diverge : <<include>>
+asm ..> roundtrip : <<include>>
+
+system -down-> windows
+system -down-> gpu
+@enduml

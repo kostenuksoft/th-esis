@@ -1,0 +1,18 @@
+skin rose
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype polyline
+skinparam ArrowThickness 1
+skinparam actorBorderThickness 1
+skinparam usecaseBorderThickness 1
+skinparam rectangleBorderThickness 1
+skinparam componentBorderThickness 1
+skinparam nodeBorderThickness 1
+skinparam databaseBorderThickness 1
+skinparam packageBorderThickness 1
+skinparam artifactBorderThickness 1
+skinparam interfaceBorderThickness 1
+skinparam classBorderThickness 1
+skinparam TitleFontSize 13
