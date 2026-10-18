@@ -1,0 +1,84 @@
+@startuml level3-components
+!include rose-common.iuml
+skinparam nodesep 14
+skinparam ranksep 34
+title kohaku.exe – діаграма компонентів
+
+component "Main" as main
+
+package "Платформа" as platform {
+  component "Window" as window
+  component "Input" as input
+  component "Bindings" as bindings
+  component "Clock" as clock
+  component "Settings" as settings
+  component "Audio" as audio
+}
+
+package "Сцени" as scenes {
+  component "TitleScene" as title
+  component "MenuScene" as menu
+  component "GameScene" as gamescene
+  component "ReplayScene" as replayscene
+}
+
+package "Симуляція" as simulation {
+  component "Game" as game
+  component "Player" as player
+  component "Enemies" as enemies
+  component "Bullets" as bullets
+  component "Items" as items
+  component "Score" as score
+  component "Collision" as collision
+  component "Random" as random
+  component "Checksum" as checksum
+}
+
+package "Віртуальні машини" as vms {
+  component "EnemyVM" as enemyvm
+  component "StageVM" as stagevm
+  component "AnimationVM" as animvm
+  component "DialogueVM" as dialoguevm
+}
+
+package "Подання" as presentation {
+  component "Renderer" as renderer
+  component "TextHud" as texthud
+}
+
+package "Запис сеансу" as recording {
+  component "Replay" as replay
+}
+
+package "Ресурси" as resources {
+  component "Archive" as archive
+  component "Readers\n.anim .stg .enm .dlg .shot" as readers
+}
+
+main ..> platform
+main ..> scenes
+gamescene ..> game
+gamescene ..> replay
+replayscene ..> replay
+game ..> player
+game ..> enemies
+game ..> bullets
+game ..> items
+game ..> score
+game ..> collision
+game ..> random
+game ..> checksum
+enemies ..> enemyvm
+menu ..> presentation
+vms ..> resources
+presentation ..> resources
+window -[hidden]right- input
+input -[hidden]right- bindings
+bindings -[hidden]right- clock
+clock -[hidden]right- settings
+settings -[hidden]right- audio
+stagevm -[hidden]right- animvm
+animvm -[hidden]right- enemyvm
+enemyvm -[hidden]right- dialoguevm
+note bottom of resources : Log, Memory, File, String, Math –\nнаскрізні служби, ними користуються\nусі компоненти; зв’язки не показано
+@enduml
