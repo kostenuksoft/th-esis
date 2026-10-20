@@ -135,6 +135,8 @@ flowchart TB
     end
     subgraph simulation["Симуляція"]
         game["Game"]
+        stage["Stage"]
+        dialogue["Dialogue"]
         player["Player"]
         enemies["Enemies"]
         bullets["Bullets"]
@@ -166,8 +168,11 @@ flowchart TB
     gamescene -.-> game
     gamescene -.-> replay
     replayscene -.-> replay
-    game -.-> player & enemies & bullets & items & score & collision & random & checksum
-    enemies -.-> enemyvm
+    game -.-> stage & dialogue & player & enemies & bullets & items & score & collision & random & checksum
+    stage -.-> stagevm & animvm
+    dialogue -.-> dialoguevm
+    enemies -.-> enemyvm & animvm
+    player & bullets & items -.-> animvm
     menu -.-> presentation
     vms -.-> resources
     presentation -.-> resources
@@ -180,9 +185,9 @@ flowchart TB
 - **Main** – корінь композиції платформи. Будує ланцюг модулів на стеку, виконує цикл кадру й переходи між сценами, руйнує модулі у зворотному порядку. Логіки гри не містить.
 - **Платформа** – вхідний шар: Window (вікно, режими, DPI – [SRS-FUN-01](srs.md#srs-fun-01) – [SRS-FUN-03](srs.md#srs-fun-03)), Input і Bindings (клавіатура → маска дій – [SRS-FUN-04](srs.md#srs-fun-04), [SRS-FUN-05](srs.md#srs-fun-05)), Clock (фіксований крок – [SRS-FUN-09](srs.md#srs-fun-09), [SRS-FUN-10](srs.md#srs-fun-10)), Settings ([SRS-FUN-07](srs.md#srs-fun-07)), Audio ([SRS-FUN-08](srs.md#srs-fun-08)).
 - **Сцени** – єдина поліморфна роль системи: TitleScene, MenuScene, GameScene, ReplayScene ([SRS-FUN-41](srs.md#srs-fun-41)). Сцена повертає запит на перехід, виконує його Main; жодна сцена не створює іншої. Пауза – стан усередині GameScene ([SRS-FUN-15](srs.md#srs-fun-15)). Через пакет «Подання» малюють усі сцени; на діаграмі цю залежність показано однією стрілкою.
-- **Симуляція** – межа детермінізму ([SRS-NFR-DET-05](srs.md#srs-nfr-det-05)). Game – корінь композиції симуляції: володіє станом світу й записує порядок кроку в коді одного методу ([SRS-FUN-11](srs.md#srs-fun-11)). Player, Enemies, Bullets, Items і Score володіють власними записами в пулах і власним кроком і не знають одне про одного ([SRS-FUN-19](srs.md#srs-fun-19) – [SRS-FUN-27](srs.md#srs-fun-27)). Collision – вільні функції, що отримують обидві сторони взаємодії як аргументи ([SRS-FUN-25](srs.md#srs-fun-25)). Random і Checksum – генератор PCG32 у складі стану й контрольна сума FNV-1a ([SRS-FUN-13](srs.md#srs-fun-13), [SRS-FUN-14](srs.md#srs-fun-14)).
+- **Симуляція** – межа детермінізму ([SRS-NFR-DET-05](srs.md#srs-nfr-det-05)). Game – корінь композиції симуляції: володіє станом світу й записує порядок кроку в коді одного методу ([SRS-FUN-11](srs.md#srs-fun-11)). Player, Enemies, Bullets, Items і Score володіють власними записами в пулах і власним кроком і не знають одне про одного ([SRS-FUN-19](srs.md#srs-fun-19) – [SRS-FUN-27](srs.md#srs-fun-27)). Stage володіє описом сцени: об’єктами тла, камерою й туманом ([SRS-FUN-31](srs.md#srs-fun-31)). Dialogue веде діалог між персонажами під час сцени ([SRS-FUN-28](srs.md#srs-fun-28)). Collision – вільні функції, що отримують обидві сторони взаємодії як аргументи ([SRS-FUN-25](srs.md#srs-fun-25)). Random і Checksum – генератор PCG32 у складі стану й контрольна сума FNV-1a ([SRS-FUN-13](srs.md#srs-fun-13), [SRS-FUN-14](srs.md#srs-fun-14)).
 - **Запис сеансу** – Replay зберігає маски дій і контрольні суми кроків і ніколи не змінює стан світу ([SRS-FUN-16](srs.md#srs-fun-16) – [SRS-FUN-18](srs.md#srs-fun-18)).
-- **Віртуальні машини** – виконавці сценаріїв ресурсів: EnemyVM (поведінка ворогів, фази атаки, складність – [SRS-FUN-29](srs.md#srs-fun-29), [SRS-FUN-23](srs.md#srs-fun-23), [SRS-FUN-24](srs.md#srs-fun-24)), StageVM ([SRS-FUN-31](srs.md#srs-fun-31)), AnimationVM ([SRS-FUN-30](srs.md#srs-fun-30)), DialogueVM ([SRS-FUN-32](srs.md#srs-fun-32)).
+- **Віртуальні машини** – виконавці сценаріїв ресурсів. Віртуальна машина належить сутності, чий сценарій виконує, і стан виконання зберігається в записі цієї сутності: EnemyVM виконує сценарії Enemies (поведінка ворогів, фази атаки, складність – [SRS-FUN-29](srs.md#srs-fun-29), [SRS-FUN-23](srs.md#srs-fun-23), [SRS-FUN-24](srs.md#srs-fun-24)), StageVM – сценарій камери й туману Stage ([SRS-FUN-31](srs.md#srs-fun-31)), DialogueVM – сценарій Dialogue ([SRS-FUN-32](srs.md#srs-fun-32)). AnimationVM має кожна сутність, що має видимі спрайти: Player, Enemies, Bullets, Items і об’єкти тла Stage ([SRS-FUN-30](srs.md#srs-fun-30)).
 - **Подання** – Renderer (пакетування спрайтів, класи текстур, ціль сцени й компонування інтерфейсу – [SRS-FUN-36](srs.md#srs-fun-36) – [SRS-FUN-39](srs.md#srs-fun-39)) і TextHud (текст спрайтами з банку гліфів – [SRS-FUN-40](srs.md#srs-fun-40)).
 - **Ресурси** – Archive і читачі форматів .anim, .stg, .enm, .dlg, .shot ([SRS-FUN-33](srs.md#srs-fun-33) – [SRS-FUN-35](srs.md#srs-fun-35)). Читачі перевіряють файл на межі: обрізаний файл або файл із невідповідною контрольною сумою вмісту відхиляється ([SRS-NFR-INT-01](srs.md#srs-nfr-int-01)).
 
