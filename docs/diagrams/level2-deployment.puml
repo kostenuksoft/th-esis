@@ -1,0 +1,30 @@
+@startuml level2-deployment
+!include rose-common.iuml
+skinparam nodesep 12
+skinparam ranksep 28
+title Kohaku – діаграма розгортання (контейнери системи)
+
+artifact "Інсталяційний\nпакет MSI" as msi
+
+node "Комп’ютер користувача\n<<execution environment>>\nWindows 10/11 x64" as pc {
+  folder "Вихідні матеріали\nPNG, текстові форми" as sources
+  artifact "kohakuc.exe" as tool
+  folder "Архів ресурсів\n.pak" as assets
+  artifact "kohaku.exe" as game
+  folder "Налаштування" as settings
+  folder "Записи сеансів" as replays
+  folder "Журнали" as logs
+  node "Графічний адаптер\n<<device>>" as gpu {
+    component "Драйвер\nDirect3D 11" as driver
+  }
+}
+
+msi .down.> pc : <<deploy>>
+tool .left.> sources : <<read>>
+tool .right.> assets : <<write>>
+game .left.> assets : <<read>>
+game .down.> settings : <<read/write>>
+game .down.> replays : <<read/write>>
+game .down.> logs : <<write>>
+game .down.> driver : <<use>>
+@enduml
