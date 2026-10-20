@@ -1,39 +1,30 @@
 @startuml level2-deployment
 !include rose-common.iuml
-left to right direction
-skinparam nodesep 14
-skinparam ranksep 36
+skinparam nodesep 12
+skinparam ranksep 28
 title Kohaku – діаграма розгортання (контейнери системи)
 
-node "Робоча станція\n<<execution environment>>\nWindows 10/11 x64" as pc {
+artifact "Інсталяційний\nпакет MSI" as msi
+
+node "Комп’ютер користувача\n<<execution environment>>\nWindows 10/11 x64" as pc {
   folder "Вихідні матеріали\nPNG, текстові форми" as sources
   artifact "kohakuc.exe" as tool
-  artifact "kohaku_tests.exe" as tests
-  artifact "kohaku_stageview.exe" as viewer
   folder "Архів ресурсів\n.pak" as assets
   artifact "kohaku.exe" as game
   folder "Налаштування" as settings
   folder "Записи сеансів" as replays
   folder "Журнали" as logs
+  node "Графічний адаптер\n<<device>>" as gpu {
+    component "Драйвер\nDirect3D 11" as driver
+  }
 }
 
-node "Графічний адаптер\n<<device>>" as gpu {
-  component "Драйвер\nDirect3D 11" as driver
-}
-
-node "Сервер збирання\n<<execution environment>>\nGitHub Actions, Windows" as ci {
-  artifact "Інсталяційний\nпакет MSI" as msi
-}
-
-sources <.. tool : <<read>>
-tool ..> assets : <<write>>
-tests ..> assets : <<read>>
-viewer ..> assets : <<read>>
-viewer ..> driver : <<use>>
-assets <.. game : <<read>>
-game ..> settings : <<read/write>>
-game ..> replays : <<read/write>>
-game ..> logs : <<write>>
-game ..> driver : <<use>>
-msi ..> pc : <<deploy>>
+msi .down.> pc : <<deploy>>
+tool .left.> sources : <<read>>
+tool .right.> assets : <<write>>
+game .left.> assets : <<read>>
+game .down.> settings : <<read/write>>
+game .down.> replays : <<read/write>>
+game .down.> logs : <<write>>
+game .down.> driver : <<use>>
 @enduml
